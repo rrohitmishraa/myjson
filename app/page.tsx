@@ -31,9 +31,7 @@ export default function Home() {
     const sheetId = extractSheetId(url);
     if (!sheetId) return alert("Invalid URL");
 
-    const base = typeof window !== "undefined" && window.location.hostname === "localhost"
-      ? "http://localhost:5555"
-      : "https://your-production-url.com"; // replace later
+    const base = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5555";
 
     const endpoint = `${base}/api/${sheetId}/${sheet}`;
     setApiUrl(endpoint);
