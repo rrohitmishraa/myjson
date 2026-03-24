@@ -18,7 +18,7 @@ export async function GET(
     let jsonString = "";
 
     // Strategy 1: setResponse wrapper
-    const match = text.match(/setResponse\((.*)\)/s);
+    const match = text.match(/setResponse\(([\s\S]*)\)/); 
     if (match && match[1]) {
       jsonString = match[1];
     }
