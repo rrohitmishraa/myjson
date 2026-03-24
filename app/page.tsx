@@ -12,11 +12,14 @@ export default function Home() {
   const [theme, setTheme] = useState("dark");
   const [copied, setCopied] = useState<string | null>(null);
 
+  const [mounted, setMounted] = useState(false);
+
   const [mouse, setMouse] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     const saved = localStorage.getItem("theme");
     if (saved) setTheme(saved);
+    setMounted(true);
   }, []);
 
   useEffect(() => {
@@ -54,7 +57,10 @@ export default function Home() {
     setLoading(true);
 
     try {
-      const res = await fetch(endpoint);
+      // 🔥 always fetch fresh data (no cache anywhere)
+      const res = await fetch(`${endpoint}?t=${Date.now()}`, {
+        cache: "no-store",
+      });
       const json = await res.json();
       setData(json);
     } catch (err: any) {
@@ -139,9 +145,11 @@ export default function Home() {
     );
   }
 
+  if (!mounted) return null;
+
   return (
     <motion.div
-      className={`h-screen px-6 py-16 relative overflow-hidden flex flex-col ${isDark ? "bg-[#07070a] text-white" : "bg-[#f5f7fb] text-gray-900"}`}
+      className={`h-screen px-6 py-16 relative flex flex-col overflow-hidden ${isDark ? "bg-[#07070a] text-white" : "bg-[#f5f7fb] text-gray-900"}`}
     >
 
       {/* Dynamic Glow */}
@@ -157,7 +165,7 @@ export default function Home() {
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(120,80,255,0.05),transparent_70%)]" />
 
       {/* NAVBAR */}
-      <div className="w-[80%] mx-auto px-6 flex justify-between items-center mb-16">
+      <div className="w-[80%] mx-auto px-6 flex justify-between items-center mb-8">
         <h1 className="text-lg font-semibold tracking-tight">MyJSON</h1>
 
         <button
@@ -169,7 +177,7 @@ export default function Home() {
       </div>
 
       {/* HERO + FORM */}
-      <div className="w-[80%] mx-auto px-6 mt-12 grid md:grid-cols-2 gap-16 items-center shrink-0">
+      <div className="w-[80%] mx-auto px-6 mt-4 grid md:grid-cols-2 gap-16 items-center shrink-0">
         {/* LEFT - TEXT */}
         <div className="space-y-6">
           <h1 className="text-5xl md:text-6xl font-semibold leading-tight tracking-tight">
@@ -295,7 +303,7 @@ export default function Home() {
 
       {!data && !loading && (
         <div className="w-[80%] mx-auto px-6 mt-16 select-none pointer-events-none shrink-0">
-          <motion.div layoutId="json-area">
+          <motion.div>
             <div
               className={`rounded-2xl p-6 border border-dashed ${isDark
                 ? "bg-[#12121a]/40 border-white/10"
@@ -324,9 +332,9 @@ export default function Home() {
           initial={{ opacity: 0, y: 30, scale: 0.98 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className="w-[80%] mx-auto px-6 mt-16 flex-grow overflow-hidden"
+          className="w-[80%] mx-auto px-6 mt-10 flex-1 flex flex-col overflow-hidden"
         >
-          <div className="w-full h-full">
+          <div className="w-full flex-1 flex flex-col min-h-0">
             {loading && (
               <motion.div
                 className="text-sm opacity-60 text-center"
@@ -344,7 +352,7 @@ export default function Home() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, ease: "easeOut" }}
-                className={`mt-2 max-h-[calc(100vh-420px)] overflow-auto text-xs font-mono leading-relaxed rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} px-4 py-3 bg-transparent`}
+                className={`mt-4 h-[480px] overflow-y-auto overflow-x-hidden text-xs font-mono leading-relaxed rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} px-4 py-4 bg-white/50`}
               >
                 <JSONNode data={data} />
               </motion.div>
