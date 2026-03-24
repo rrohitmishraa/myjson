@@ -54,12 +54,15 @@ const pages: Record<string, { title: string; description: string }> = {
     },
 };
 
+/* ---------- METADATA ---------- */
+
 export async function generateMetadata({
     params,
 }: {
-    params: { slug: string };
+    params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
-    const page = pages[params.slug];
+    const { slug } = await params;
+    const page = pages[slug];
 
     if (!page) return {};
 
@@ -69,8 +72,15 @@ export async function generateMetadata({
     };
 }
 
-export default function Page({ params }: { params: { slug: string } }) {
-    const page = pages[params.slug];
+/* ---------- PAGE ---------- */
+
+export default async function Page({
+    params,
+}: {
+    params: Promise<{ slug: string }>;
+}) {
+    const { slug } = await params;
+    const page = pages[slug];
 
     if (!page) {
         return <div className="p-10">Page not found</div>;
