@@ -101,7 +101,7 @@ export default function Home() {
 
     return (
       <motion.div
-        className="pl-4 border-l border-white/10 space-y-1"
+        className="pl-4 space-y-1"
         initial="hidden"
         animate="visible"
         variants={{
@@ -137,15 +137,15 @@ export default function Home() {
 
   return (
     <motion.div
-      className={`min-h-screen px-6 py-12 relative overflow-hidden ${isDark ? "bg-[#07070a] text-white" : "bg-[#f5f7fb] text-gray-900"}`}
+      className={`h-screen px-6 py-16 relative overflow-hidden flex flex-col ${isDark ? "bg-[#07070a] text-white" : "bg-[#f5f7fb] text-gray-900"}`}
     >
 
       {/* Dynamic Glow */}
       <div
         className={`pointer-events-none absolute w-[500px] h-[500px] blur-[120px] rounded-full ${isDark ? "bg-purple-600/20" : "bg-purple-600/10"}`}
         style={{
-          top: mouse.y - 250,
-          left: mouse.x - 250,
+          top: Math.max(0, mouse.y - 250),
+          left: Math.max(0, mouse.x - 250),
         }}
       />
 
@@ -153,7 +153,7 @@ export default function Home() {
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(120,80,255,0.05),transparent_70%)]" />
 
       {/* NAVBAR */}
-      <div className="max-w-7xl mx-auto px-6 flex justify-between items-center mb-16">
+      <div className="w-[80%] mx-auto px-6 flex justify-between items-center mb-16">
         <h1 className="text-lg font-semibold tracking-tight">MyJSON</h1>
 
         <button
@@ -165,7 +165,7 @@ export default function Home() {
       </div>
 
       {/* HERO + FORM */}
-      <div className="max-w-7xl mx-auto px-6 mt-12 grid md:grid-cols-2 gap-16 items-center">
+      <div className="w-[80%] mx-auto px-6 mt-12 grid md:grid-cols-2 gap-16 items-center shrink-0">
         {/* LEFT - TEXT */}
         <div className="space-y-6">
           <h1 className="text-5xl md:text-6xl font-semibold leading-tight tracking-tight">
@@ -200,6 +200,13 @@ export default function Home() {
                   placeholder="Paste Google Sheet URL"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      const next = document.getElementById("sheet-input");
+                      next?.focus();
+                    }
+                  }}
                   className={`w-full px-4 py-3 pr-10 rounded-lg text-sm border outline-none transition ${isDark
                     ? "bg-black/40 border-white/10 focus:border-purple-500"
                     : "bg-white border-gray-300 focus:border-purple-500"
@@ -218,9 +225,16 @@ export default function Home() {
 
               <div className="relative">
                 <input
+                  id="sheet-input"
                   placeholder="Sheet Name (default: Sheet1)"
                   value={sheet}
                   onChange={(e) => setSheet(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleGenerate();
+                    }
+                  }}
                   className={`w-full px-4 py-3 pr-10 rounded-lg text-sm border outline-none transition ${isDark
                     ? "bg-black/40 border-white/10 focus:border-purple-500"
                     : "bg-white border-gray-300 focus:border-purple-500"
@@ -267,8 +281,38 @@ export default function Home() {
               )}
             </div>
           </div>
+          {!data && (
+            <p className="text-sm opacity-50 mt-6 text-center">
+              Paste your sheet link and generate your API ↓
+            </p>
+          )}
         </motion.div>
       </div>
+
+      {!data && !loading && (
+        <div className="w-[80%] mx-auto px-6 mt-16 select-none pointer-events-none shrink-0">
+          <motion.div layoutId="json-area">
+            <div
+              className={`rounded-2xl p-6 border border-dashed ${isDark
+                ? "bg-[#12121a]/40 border-white/10"
+                : "bg-white/50 border-gray-300"
+                }`}
+            >
+              <p className="text-xs uppercase tracking-wide opacity-40 mb-3">
+                Preview
+              </p>
+
+              <pre className="text-xs font-mono opacity-40">
+                {`{
+  "example": "your data",
+  "rows": 10,
+  "status": "ready"
+}`}
+              </pre>
+            </div>
+          </motion.div>
+        </div>
+      )}
 
       {/* RESPONSE */}
       {(loading || data) && (
@@ -276,17 +320,12 @@ export default function Home() {
           initial={{ opacity: 0, y: 30, scale: 0.98 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className="max-w-7xl mx-auto px-6 mt-16"
+          className="w-[80%] mx-auto px-6 mt-16 flex-grow overflow-hidden"
         >
-          <div
-            className={`rounded-2xl p-6 border shadow-xl ${isDark
-              ? "bg-[#12121a] border-white/10"
-              : "bg-white border-gray-200"
-              }`}
-          >
+          <div className="w-full h-full">
             {loading && (
               <motion.div
-                className="text-sm opacity-60"
+                className="text-sm opacity-60 text-center"
                 initial={{ opacity: 0.3 }}
                 animate={{ opacity: [0.3, 1, 0.3] }}
                 transition={{ duration: 1.2, repeat: Infinity }}
@@ -297,10 +336,11 @@ export default function Home() {
 
             {data && (
               <motion.div
-                initial={{ opacity: 0, y: 20, scale: 0.98 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
+                layoutId="json-area"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, ease: "easeOut" }}
-                className={`mt-4 h-96 overflow-auto rounded-lg p-4 text-xs font-mono leading-relaxed ${isDark ? "bg-black/50" : "bg-gray-50 border border-gray-200"}`}
+                className={`mt-2 max-h-[calc(100vh-420px)] overflow-auto text-xs font-mono leading-relaxed rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} px-4 py-3 bg-transparent`}
               >
                 <JSONNode data={data} />
               </motion.div>
