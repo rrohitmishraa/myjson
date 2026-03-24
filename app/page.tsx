@@ -100,9 +100,24 @@ export default function Home() {
       : Object.entries(data);
 
     return (
-      <div className="pl-4 border-l border-white/10 space-y-1">
+      <motion.div
+        className="pl-4 border-l border-white/10 space-y-1"
+        initial="hidden"
+        animate="visible"
+        variants={{
+          hidden: {},
+          visible: {
+            transition: {
+              staggerChildren: 0.02
+            }
+          }
+        }}
+      >
         {entries.map(([key, value]: any, index: number) => (
-          <div key={index} className={`flex gap-2 text-xs px-1 rounded ${isDark ? "hover:bg-white/5" : "hover:bg-gray-200"}`}>
+          <div
+            key={index}
+            className="flex gap-2 text-xs px-1 rounded"
+          >
             <span
               className={`${isDark ? "text-purple-400" : "text-purple-600"} cursor-pointer`}
               onClick={() => {
@@ -116,7 +131,7 @@ export default function Home() {
             <JSONNode data={value} level={level + 1} />
           </div>
         ))}
-      </div>
+      </motion.div>
     );
   }
 
@@ -127,7 +142,7 @@ export default function Home() {
 
       {/* Dynamic Glow */}
       <div
-        className="pointer-events-none absolute w-[500px] h-[500px] bg-purple-600/20 blur-[120px] rounded-full"
+        className={`pointer-events-none absolute w-[500px] h-[500px] blur-[120px] rounded-full ${isDark ? "bg-purple-600/20" : "bg-purple-600/10"}`}
         style={{
           top: mouse.y - 250,
           left: mouse.x - 250,
@@ -180,29 +195,52 @@ export default function Home() {
               }`}
           >
             <div className="space-y-4">
-              <input
-                placeholder="Paste Google Sheet URL"
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-                className={`w-full px-4 py-3 rounded-lg text-sm border outline-none transition ${isDark
-                  ? "bg-black/40 border-white/10 focus:border-purple-500"
-                  : "bg-white border-gray-300 focus:border-purple-500"
-                  }`}
-              />
+              <div className="relative">
+                <input
+                  placeholder="Paste Google Sheet URL"
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
+                  className={`w-full px-4 py-3 pr-10 rounded-lg text-sm border outline-none transition ${isDark
+                    ? "bg-black/40 border-white/10 focus:border-purple-500"
+                    : "bg-white border-gray-300 focus:border-purple-500"
+                    }`}
+                />
 
-              <input
-                placeholder="Sheet Name (default: Sheet1)"
-                value={sheet}
-                onChange={(e) => setSheet(e.target.value)}
-                className={`w-full px-4 py-3 rounded-lg text-sm border outline-none transition ${isDark
-                  ? "bg-black/40 border-white/10 focus:border-purple-500"
-                  : "bg-white border-gray-300 focus:border-purple-500"
-                  }`}
-              />
+                {url && (
+                  <button
+                    onClick={() => setUrl("")}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-xs opacity-60 hover:opacity-100 cursor-pointer"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+
+              <div className="relative">
+                <input
+                  placeholder="Sheet Name (default: Sheet1)"
+                  value={sheet}
+                  onChange={(e) => setSheet(e.target.value)}
+                  className={`w-full px-4 py-3 pr-10 rounded-lg text-sm border outline-none transition ${isDark
+                    ? "bg-black/40 border-white/10 focus:border-purple-500"
+                    : "bg-white border-gray-300 focus:border-purple-500"
+                    }`}
+                />
+
+                {sheet && (
+                  <button
+                    onClick={() => setSheet("")}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-xs opacity-60 hover:opacity-100 cursor-pointer"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
 
               <motion.button
-                whileTap={{ scale: 0.96 }}
-                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.94 }}
+                whileHover={{ scale: 1.03 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
                 onClick={handleGenerate}
                 className="w-full py-3 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-medium transition cursor-pointer"
               >
@@ -235,9 +273,9 @@ export default function Home() {
       {/* RESPONSE */}
       {(loading || data) && (
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
+          initial={{ opacity: 0, y: 30, scale: 0.98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
           className="max-w-7xl mx-auto px-6 mt-16"
         >
           <div
@@ -247,13 +285,25 @@ export default function Home() {
               }`}
           >
             {loading && (
-              <div className="text-sm opacity-60">Fetching data…</div>
+              <motion.div
+                className="text-sm opacity-60"
+                initial={{ opacity: 0.3 }}
+                animate={{ opacity: [0.3, 1, 0.3] }}
+                transition={{ duration: 1.2, repeat: Infinity }}
+              >
+                Fetching data…
+              </motion.div>
             )}
 
             {data && (
-              <div className={`mt-4 h-96 overflow-auto rounded-lg p-4 text-xs font-mono leading-relaxed ${isDark ? "bg-black/50" : "bg-gray-50 border border-gray-200"}`}>
+              <motion.div
+                initial={{ opacity: 0, y: 20, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
+                className={`mt-4 h-96 overflow-auto rounded-lg p-4 text-xs font-mono leading-relaxed ${isDark ? "bg-black/50" : "bg-gray-50 border border-gray-200"}`}
+              >
                 <JSONNode data={data} />
-              </div>
+              </motion.div>
             )}
           </div>
         </motion.div>
