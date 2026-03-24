@@ -87,12 +87,12 @@ export const metadata: Metadata = {
   verification: {
     google: "JYfw9EDHwa0UlxLkTxwXQGMnp0U4P2XA1hipHfRs36I",
     other: {
-      bing: "", // add later
+      bing: "",
     },
   },
 };
 
-/* ---------- VIEWPORT (NEW WAY) ---------- */
+/* ---------- VIEWPORT ---------- */
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -112,6 +112,14 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        {/* 🔥 FORCE Google verification inside <head> */}
+        <meta
+          name="google-site-verification"
+          content="JYfw9EDHwa0UlxLkTxwXQGMnp0U4P2XA1hipHfRs36I"
+        />
+      </head>
+
       <body className="min-h-full flex flex-col bg-[#07070a] text-white">
         {children}
 
