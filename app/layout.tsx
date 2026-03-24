@@ -17,10 +17,6 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL("https://mysjon.unlinkly.com"),
 
-  verification: {
-    google: "JYfw9EDHwa0UlxLkTxwXQGMnp0U4P2XA1hipHfRs36I",
-  },
-
   title: {
     default: "MyJSON – Google Sheets to JSON API",
     template: "%s | MyJSON",
@@ -89,7 +85,7 @@ export const metadata: Metadata = {
   },
 
   verification: {
-    google: "", // add later
+    google: "JYfw9EDHwa0UlxLkTxwXQGMnp0U4P2XA1hipHfRs36I",
     other: {
       bing: "", // add later
     },
