@@ -301,6 +301,7 @@ export default function Home() {
         </motion.div>
       </div>
 
+
       {!data && !loading && (
         <div className="w-[80%] mx-auto px-6 mt-16 select-none pointer-events-none shrink-0">
           <motion.div>
@@ -360,6 +361,7 @@ export default function Home() {
           </div>
         </motion.div>
       )}
+
 
     </motion.div>
   );
