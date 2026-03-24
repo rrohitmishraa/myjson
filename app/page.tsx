@@ -40,13 +40,17 @@ export default function Home() {
     const sheetId = extractSheetId(url);
     if (!sheetId) return alert("Invalid URL");
 
-    const base = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5555";
-    const endpoint = `${base}/api/${sheetId}/${sheet}`;
+    const endpoint = `/api/sheet/${sheetId}/${sheet}`;
 
     // Debug API endpoint
     console.log("API Endpoint:", endpoint);
 
-    setApiUrl(endpoint);
+    const fullUrl =
+      typeof window !== "undefined"
+        ? `${window.location.origin}${endpoint}`
+        : endpoint;
+
+    setApiUrl(fullUrl);
     setLoading(true);
 
     try {
