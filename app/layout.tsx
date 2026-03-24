@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -11,6 +11,8 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
+
+/* ---------- METADATA ---------- */
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://mysjon.unlinkly.com"),
@@ -73,17 +75,9 @@ export const metadata: Metadata = {
 
   manifest: "/manifest.json",
 
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-  },
-
-  themeColor: "#07070a",
-
   robots: {
     index: true,
     follow: true,
-    nocache: true,
     googleBot: {
       index: true,
       follow: true,
@@ -91,12 +85,22 @@ export const metadata: Metadata = {
   },
 
   verification: {
-    google: "",
+    google: "", // add later
     other: {
-      bing: "",
+      bing: "", // add later
     },
   },
 };
+
+/* ---------- VIEWPORT (NEW WAY) ---------- */
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#07070a",
+};
+
+/* ---------- LAYOUT ---------- */
 
 export default function RootLayout({
   children,
@@ -111,6 +115,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-[#07070a] text-white">
         {children}
 
+        {/* Structured Data */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
