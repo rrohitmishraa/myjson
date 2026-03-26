@@ -1,7 +1,24 @@
+export async function OPTIONS() {
+  return new Response(null, {
+    status: 200,
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET,OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type",
+    },
+  });
+}
+
 export async function GET(
   req: Request,
   context: { params: Promise<{ sheetId: string; sheet: string }> },
 ) {
+  const headers = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET,OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+  };
+
   const { sheetId, sheet } = await context.params;
 
   const fetchUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${sheet}`;
@@ -84,18 +101,21 @@ export async function GET(
       return obj;
     });
 
-    return Response.json({
-      success: true,
-      rows: result.length,
-      data: result,
-    });
+    return Response.json(
+      {
+        success: true,
+        rows: result.length,
+        data: result,
+      },
+      { headers },
+    );
   } catch (err: any) {
     return Response.json(
       {
         success: false,
         error: err.message || "Something went wrong",
       },
-      { status: 500 },
+      { status: 500, headers },
     );
   }
 }
