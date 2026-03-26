@@ -66,11 +66,23 @@ export async function GET(
       const firstRow = parsed.table.rows[0];
 
       if (firstRow) {
-        cols = firstRow.c.map((cell: any, i: number) =>
-          cell?.v
-            ? String(cell.v).toLowerCase().replace(/\s+/g, "_")
-            : `column_${i}`,
-        );
+        // 🔥 find last non-empty header index
+        let lastIndex = firstRow.c.length - 1;
+        while (
+          lastIndex >= 0 &&
+          (!firstRow.c[lastIndex] || !firstRow.c[lastIndex].v)
+        ) {
+          lastIndex--;
+        }
+
+        // 🔥 only keep real columns
+        cols = firstRow.c
+          .slice(0, lastIndex + 1)
+          .map((cell: any, i: number) =>
+            cell?.v
+              ? String(cell.v).toLowerCase().replace(/\s+/g, "_")
+              : `column_${i}`,
+          );
 
         // remove header row from data
         parsed.table.rows.shift();
