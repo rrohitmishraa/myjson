@@ -149,7 +149,7 @@ export default function Home() {
 
   return (
     <motion.div
-      className={`h-screen px-6 py-16 relative flex flex-col overflow-hidden ${isDark ? "bg-[#07070a] text-white" : "bg-[#f5f7fb] text-gray-900"}`}
+      className={`min-h-screen px-6 py-16 relative flex flex-col overflow-hidden ${isDark ? "bg-[#07070a] text-white" : "bg-[#f5f7fb] text-gray-900"}`}
     >
 
       {/* Dynamic Glow */}
@@ -165,7 +165,7 @@ export default function Home() {
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(120,80,255,0.05),transparent_70%)]" />
 
       {/* NAVBAR */}
-      <div className="w-[80%] mx-auto px-6 flex justify-between items-center mb-8">
+      <div className="w-full md:w-[80%] mx-auto px-4 md:px-6 flex justify-between items-center mb-6 md:mb-8">
         <h1 className="text-lg font-semibold tracking-tight">MyJSON</h1>
 
         <button
@@ -177,10 +177,10 @@ export default function Home() {
       </div>
 
       {/* HERO + FORM */}
-      <div className="w-[80%] mx-auto px-6 mt-4 grid md:grid-cols-2 gap-16 items-center shrink-0">
+      <div className="w-full md:w-[80%] mx-auto px-4 md:px-6 mt-4 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-start md:items-center shrink-0">
         {/* LEFT - TEXT */}
         <div className="space-y-6">
-          <h1 className="text-5xl md:text-6xl font-semibold leading-tight tracking-tight">
+          <h1 className="text-3xl sm:text-4xl md:text-6xl font-semibold leading-tight tracking-tight">
             Convert your{" "}
             <span className="bg-gradient-to-r from-purple-400 to-indigo-500 text-transparent bg-clip-text">
               Google Sheets
@@ -191,7 +191,7 @@ export default function Home() {
             </span>
           </h1>
 
-          <p className="text-base opacity-70 max-w-md">
+          <p className="text-sm sm:text-base opacity-70 max-w-md">
             Turn any sheet into a live JSON API in seconds. No backend needed.
           </p>
         </div>
@@ -203,7 +203,7 @@ export default function Home() {
           transition={{ duration: 0.6, ease: "easeOut" }}
         >
           <div
-            className={`rounded-2xl p-6 border backdrop-blur-xl shadow-xl hover:scale-[1.01] transition-transform ${isDark ? "bg-white/5 border-white/10" : "bg-white border-gray-200"
+            className={`rounded-2xl p-5 md:p-6 border backdrop-blur-xl shadow-xl hover:scale-[1.01] transition-transform ${isDark ? "bg-white/5 border-white/10" : "bg-white border-gray-200"
               }`}
           >
             <div className="space-y-4">
@@ -219,7 +219,7 @@ export default function Home() {
                       next?.focus();
                     }
                   }}
-                  className={`w-full px-4 py-3 pr-10 rounded-lg text-sm border outline-none transition ${isDark
+                  className={`w-full px-3 md:px-4 py-3 pr-10 rounded-lg text-sm border outline-none transition ${isDark
                     ? "bg-black/40 border-white/10 focus:border-purple-500"
                     : "bg-white border-gray-300 focus:border-purple-500"
                     }`}
@@ -247,7 +247,7 @@ export default function Home() {
                       handleGenerate();
                     }
                   }}
-                  className={`w-full px-4 py-3 pr-10 rounded-lg text-sm border outline-none transition ${isDark
+                  className={`w-full px-3 md:px-4 py-3 pr-10 rounded-lg text-sm border outline-none transition ${isDark
                     ? "bg-black/40 border-white/10 focus:border-purple-500"
                     : "bg-white border-gray-300 focus:border-purple-500"
                     }`}
@@ -268,7 +268,7 @@ export default function Home() {
                 whileHover={{ scale: 1.03 }}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
                 onClick={handleGenerate}
-                className="w-full py-3 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-medium transition cursor-pointer"
+                className="w-full py-2.5 md:py-3 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-medium transition cursor-pointer"
               >
                 Generate API
               </motion.button>
@@ -303,7 +303,7 @@ export default function Home() {
 
 
       {!data && !loading && (
-        <div className="w-[80%] mx-auto px-6 mt-16 select-none pointer-events-none shrink-0">
+        <div className="w-full md:w-[80%] mx-auto px-4 md:px-6 mt-10 sm:mt-16 select-none pointer-events-none shrink-0">
           <motion.div>
             <div
               className={`rounded-2xl p-6 border border-dashed ${isDark
@@ -333,7 +333,7 @@ export default function Home() {
           initial={{ opacity: 0, y: 30, scale: 0.98 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className="w-[80%] mx-auto px-6 mt-10 flex-1 flex flex-col overflow-hidden"
+          className="w-full md:w-[80%] mx-auto px-4 md:px-6 mt-8 sm:mt-10 flex-1 flex flex-col overflow-hidden"
         >
           <div className="w-full flex-1 flex flex-col min-h-0">
             {loading && (
@@ -353,7 +353,7 @@ export default function Home() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, ease: "easeOut" }}
-                className={`mt-4 h-[480px] overflow-y-auto overflow-x-hidden text-xs font-mono leading-relaxed rounded-xl border ${isDark ? "border-white/10 bg-[#0f0f14]" : "border-gray-200 bg-white"} px-4 py-4`}
+                className={`mt-4 h-[50vh] md:h-[480px] overflow-y-auto overflow-x-hidden text-[10px] md:text-xs font-mono leading-relaxed rounded-xl border ${isDark ? "border-white/10 bg-[#0f0f14]" : "border-gray-200 bg-white"} px-4 py-4`}
                 style={{ color: isDark ? "#e5e7eb" : undefined, scrollbarColor: isDark ? "#555 #111" : undefined }}
               >
                 <JSONNode data={data} />
