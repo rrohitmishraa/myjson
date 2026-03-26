@@ -54,11 +54,28 @@ export async function GET(
       );
     }
 
-    // ✅ Clean headers (ignore empty ones)
-    const cols = parsed.table.cols.map((col: any) => {
-      if (!col.label || col.label.trim() === "") return null;
-      return col.label.toLowerCase().replace(/\s+/g, "_");
-    });
+    // ✅ Get headers (with fallback to first row if Google fails)
+    let cols = parsed.table.cols.map((col: any) =>
+      col.label && col.label.trim() !== ""
+        ? col.label.toLowerCase().replace(/\s+/g, "_")
+        : null,
+    );
+
+    // 🔥 Fallback: use first row as header if all labels are missing
+    if (cols.every((c: any) => !c)) {
+      const firstRow = parsed.table.rows[0];
+
+      if (firstRow) {
+        cols = firstRow.c.map((cell: any, i: number) =>
+          cell?.v
+            ? String(cell.v).toLowerCase().replace(/\s+/g, "_")
+            : `column_${i}`,
+        );
+
+        // remove header row from data
+        parsed.table.rows.shift();
+      }
+    }
 
     // ✅ Build consistent objects (no fake columns, but keep structure intact)
     const result = parsed.table.rows.map((row: any) => {
