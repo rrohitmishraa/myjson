@@ -353,7 +353,8 @@ export default function Home() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, ease: "easeOut" }}
-                className={`mt-4 h-[480px] overflow-y-auto overflow-x-hidden text-xs font-mono leading-relaxed rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} px-4 py-4 bg-white/50`}
+                className={`mt-4 h-[480px] overflow-y-auto overflow-x-hidden text-xs font-mono leading-relaxed rounded-xl border ${isDark ? "border-white/10 bg-[#0f0f14]" : "border-gray-200 bg-white"} px-4 py-4`}
+                style={{ color: isDark ? "#e5e7eb" : undefined, scrollbarColor: isDark ? "#555 #111" : undefined }}
               >
                 <JSONNode data={data} />
               </motion.div>

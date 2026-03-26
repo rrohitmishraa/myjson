@@ -8,46 +8,34 @@ export async function GET(
 
   try {
     const res = await fetch(fetchUrl, {
-      // prevents caching weird responses
       cache: "no-store",
     });
 
     const text = await res.text();
 
-    // 🔥 ULTRA ROBUST PARSING (handles all edge cases)
+    // 🔥 Parse Google weird response
     let jsonString = "";
 
-    // Strategy 1: setResponse wrapper
-    const match = text.match(/setResponse\(([\s\S]*)\)/); 
+    const match = text.match(/setResponse\(([\s\S]*)\)/);
     if (match && match[1]) {
       jsonString = match[1];
     }
 
-    // Strategy 2: fallback to first valid JSON block
     if (!jsonString) {
       const firstBrace = text.indexOf("{");
       const lastBrace = text.lastIndexOf("}");
-
       if (firstBrace !== -1 && lastBrace !== -1) {
         jsonString = text.substring(firstBrace, lastBrace + 1);
       }
     }
 
-    // Final validation
     if (!jsonString) {
       console.error("RAW GOOGLE RESPONSE:\n", text);
       throw new Error("Invalid Google Sheets response");
     }
 
-    let parsed;
-    try {
-      parsed = JSON.parse(jsonString);
-    } catch (e) {
-      console.error("FAILED PARSE STRING:\n", jsonString);
-      throw new Error("Failed to parse Google Sheets JSON");
-    }
+    const parsed = JSON.parse(jsonString);
 
-    // Handle empty sheet safely
     if (!parsed.table || !parsed.table.rows) {
       return Response.json({
         success: true,
@@ -56,16 +44,42 @@ export async function GET(
       });
     }
 
-    const cols = parsed.table.cols.map((col: any, i: number) =>
-      col.label ? col.label.toLowerCase().replace(/\s+/g, "_") : `column_${i}`,
+    // ✅ ONLY VALID HEADERS (no column_11 nonsense)
+    const cols = parsed.table.cols.map((col: any) =>
+      col.label ? col.label.toLowerCase().replace(/\s+/g, "_") : null,
     );
 
     const result = parsed.table.rows.map((row: any) => {
-      let obj: any = {};
+      let raw: any = {};
 
+      // build raw object
       row.c.forEach((cell: any, i: number) => {
-        obj[cols[i]] = cell ? cell.v : null;
+        if (!cols[i]) return;
+        raw[cols[i]] = cell ? cell.v : "";
       });
+
+      // 🔥 STRICT OUTPUT FORMAT (your required structure)
+      const obj: any = {
+        id: raw.id ? String(raw.id) : "",
+        name: raw.name || "",
+        price:
+          raw.price !== undefined && raw.price !== null
+            ? String(raw.price)
+            : "",
+        category: raw.category || "",
+        tags: raw.tags || "",
+        image: raw.image || "",
+        spiceLevel:
+          raw.spicelevel !== undefined && raw.spicelevel !== null
+            ? String(raw.spicelevel)
+            : "",
+        pieces: raw.pieces || "",
+        available: raw.available ? "TRUE" : "FALSE",
+      };
+
+      // optional fields
+      if (raw.popular) obj.popular = "TRUE";
+      if (raw.description) obj.description = raw.description;
 
       return obj;
     });
