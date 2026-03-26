@@ -13,7 +13,7 @@ export async function GET(
 
   const { sheetId, sheet } = await context.params;
 
-  const fetchUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${sheet}`;
+  const fetchUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&tq=select%20*&headers=1&sheet=${sheet}`;
 
   try {
     const res = await fetch(fetchUrl, {
@@ -54,53 +54,34 @@ export async function GET(
       );
     }
 
-    // ✅ Get headers (with fallback to first row if Google fails)
+    // ✅ Use Google-provided headers (fixed with headers=1)
     let cols = parsed.table.cols.map((col: any) =>
       col.label && col.label.trim() !== ""
         ? col.label.toLowerCase().replace(/\s+/g, "_")
         : null,
     );
 
-    // 🔥 Fallback: use first row as header if all labels are missing
-    if (cols.every((c: any) => !c)) {
-      const firstRow = parsed.table.rows[0];
+    // 🔥 trim trailing empty columns
+    let lastIndex = cols.length - 1;
+    while (lastIndex >= 0 && !cols[lastIndex]) lastIndex--;
+    cols = cols.slice(0, lastIndex + 1);
 
-      if (firstRow) {
-        // 🔥 find last non-empty header index
-        let lastIndex = firstRow.c.length - 1;
-        while (
-          lastIndex >= 0 &&
-          (!firstRow.c[lastIndex] || !firstRow.c[lastIndex].v)
-        ) {
-          lastIndex--;
-        }
-
-        // 🔥 only keep real columns
-        cols = firstRow.c
-          .slice(0, lastIndex + 1)
-          .map((cell: any, i: number) =>
-            cell?.v
-              ? String(cell.v).toLowerCase().replace(/\s+/g, "_")
-              : `column_${i}`,
-          );
-
-        // remove header row from data
-        parsed.table.rows.shift();
-      }
-    }
+    const dataRows = parsed.table.rows;
 
     // ✅ Build consistent objects (no fake columns, but keep structure intact)
-    const result = parsed.table.rows
+    const result = dataRows
       .map((row: any) => {
         const obj: any = {};
 
-        row.c.forEach((cell: any, i: number) => {
+        for (let i = 0; i < cols.length; i++) {
           const key = cols[i];
-          if (!key) return;
+          if (!key) continue;
 
+          const cell = row.c[i];
           const value = cell ? cell.v : "";
+
           obj[key] = value ?? "";
-        });
+        }
 
         return obj;
       })
