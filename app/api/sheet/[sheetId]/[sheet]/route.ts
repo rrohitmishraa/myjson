@@ -78,21 +78,24 @@ export async function GET(
     }
 
     // ✅ Build consistent objects (no fake columns, but keep structure intact)
-    const result = parsed.table.rows.map((row: any) => {
-      const obj: any = {};
+    const result = parsed.table.rows
+      .map((row: any) => {
+        const obj: any = {};
 
-      row.c.forEach((cell: any, i: number) => {
-        const key = cols[i];
-        if (!key) return; // skip columns with no header
+        row.c.forEach((cell: any, i: number) => {
+          const key = cols[i];
+          if (!key) return;
 
-        const value = cell ? cell.v : "";
+          const value = cell ? cell.v : "";
+          obj[key] = value ?? "";
+        });
 
-        // ✅ Always keep key for consistent API structure
-        obj[key] = value ?? "";
-      });
-
-      return obj;
-    });
+        return obj;
+      })
+      // 🔥 remove completely empty rows
+      .filter((obj: any) =>
+        Object.values(obj).some((v) => v !== "" && v !== null),
+      );
 
     return Response.json(
       {
