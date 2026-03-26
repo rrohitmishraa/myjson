@@ -1,11 +1,7 @@
 export async function OPTIONS() {
   return new Response(null, {
     status: 200,
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET,OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type",
-    },
+    headers: corsHeaders(),
   });
 }
 
@@ -13,11 +9,7 @@ export async function GET(
   req: Request,
   context: { params: Promise<{ sheetId: string; sheet: string }> },
 ) {
-  const headers = {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "GET,OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
-  };
+  const headers = corsHeaders();
 
   const { sheetId, sheet } = await context.params;
 
@@ -30,15 +22,13 @@ export async function GET(
 
     const text = await res.text();
 
-    // 🔥 Parse Google weird response
+    // 🔥 Extract JSON from Google response
     let jsonString = "";
-
     const match = text.match(/setResponse\(([\s\S]*)\)/);
+
     if (match && match[1]) {
       jsonString = match[1];
-    }
-
-    if (!jsonString) {
+    } else {
       const firstBrace = text.indexOf("{");
       const lastBrace = text.lastIndexOf("}");
       if (firstBrace !== -1 && lastBrace !== -1) {
@@ -54,49 +44,35 @@ export async function GET(
     const parsed = JSON.parse(jsonString);
 
     if (!parsed.table || !parsed.table.rows) {
-      return Response.json({
-        success: true,
-        rows: 0,
-        data: [],
-      });
+      return Response.json(
+        {
+          success: true,
+          rows: 0,
+          data: [],
+        },
+        { headers },
+      );
     }
 
-    // ✅ ONLY VALID HEADERS (no column_11 nonsense)
-    const cols = parsed.table.cols.map((col: any) =>
-      col.label ? col.label.toLowerCase().replace(/\s+/g, "_") : null,
-    );
+    // ✅ Clean headers (ignore empty ones)
+    const cols = parsed.table.cols.map((col: any) => {
+      if (!col.label || col.label.trim() === "") return null;
+      return col.label.toLowerCase().replace(/\s+/g, "_");
+    });
 
+    // ✅ Build consistent objects (no fake columns, but keep structure intact)
     const result = parsed.table.rows.map((row: any) => {
-      let raw: any = {};
+      const obj: any = {};
 
-      // build raw object
       row.c.forEach((cell: any, i: number) => {
-        if (!cols[i]) return;
-        raw[cols[i]] = cell ? cell.v : "";
+        const key = cols[i];
+        if (!key) return; // skip columns with no header
+
+        const value = cell ? cell.v : "";
+
+        // ✅ Always keep key for consistent API structure
+        obj[key] = value ?? "";
       });
-
-      // 🔥 STRICT OUTPUT FORMAT (your required structure)
-      const obj: any = {
-        id: raw.id ? String(raw.id) : "",
-        name: raw.name || "",
-        price:
-          raw.price !== undefined && raw.price !== null
-            ? String(raw.price)
-            : "",
-        category: raw.category || "",
-        tags: raw.tags || "",
-        image: raw.image || "",
-        spiceLevel:
-          raw.spicelevel !== undefined && raw.spicelevel !== null
-            ? String(raw.spicelevel)
-            : "",
-        pieces: raw.pieces || "",
-        available: raw.available ? "TRUE" : "FALSE",
-      };
-
-      // optional fields
-      if (raw.popular) obj.popular = "TRUE";
-      if (raw.description) obj.description = raw.description;
 
       return obj;
     });
@@ -118,4 +94,13 @@ export async function GET(
       { status: 500, headers },
     );
   }
+}
+
+// 🔥 Reusable CORS
+function corsHeaders() {
+  return {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET,OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+  };
 }
