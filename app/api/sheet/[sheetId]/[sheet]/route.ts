@@ -78,7 +78,7 @@ export async function GET(
           if (!key) continue;
 
           const cell = row.c[i];
-          const value = cell ? cell.v : "";
+          const value = cell?.v ?? cell?.f ?? "";
 
           obj[key] = value ?? "";
         }
